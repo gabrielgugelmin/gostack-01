@@ -3,7 +3,10 @@ const cors = require("cors");
 const { uuid } = require("uuidv4");
 const app = express();
 
-const { validatePostData } = require("./middlewares");
+const {
+  validateCreateRepository,
+  validateRepository,
+} = require("./middlewares");
 
 app.use(express.json());
 app.use(cors());
@@ -14,7 +17,7 @@ app.get("/repositories", (request, response) => {
   return response.json(repositories);
 });
 
-app.post("/repositories", validatePostData, (request, response) => {
+app.post("/repositories", validateCreateRepository, (request, response) => {
   const { title, url, techs } = request.body;
 
   const repository = {
@@ -29,9 +32,27 @@ app.post("/repositories", validatePostData, (request, response) => {
   return response.json(repository);
 });
 
-app.put("/repositories/:id", (request, response) => {
-  // TODO
-});
+app.put(
+  "/repositories/:id",
+  validateRepository(repositories),
+  (request, response) => {
+    const { id } = request.params;
+    const { title, url, techs } = request.body;
+
+    const repositoryIndex = repositories.findIndex(
+      (repository) => repository.id === id
+    );
+    const repository = {
+      ...repositories[repositoryIndex],
+      title,
+      url,
+      techs,
+    };
+    repositories[repositoryIndex] = repository;
+
+    return response.json(repository);
+  }
+);
 
 app.delete("/repositories/:id", (request, response) => {
   // TODO
