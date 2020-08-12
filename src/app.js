@@ -69,8 +69,26 @@ app.delete(
   }
 );
 
-app.post("/repositories/:id/like", (request, response) => {
-  // TODO
-});
+app.post(
+  "/repositories/:id/like",
+  validateRepository(repositories),
+  (request, response) => {
+    const { id } = request.params;
+    const { title, url, techs } = request.body;
+
+    const repositoryIndex = repositories.findIndex(
+      (repository) => repository.id === id
+    );
+
+    const repository = {
+      ...repositories[repositoryIndex],
+      likes: ++repositories[repositoryIndex].likes,
+    };
+
+    repositories[repositoryIndex] = repository;
+
+    return response.json(repository);
+  }
+);
 
 module.exports = app;
