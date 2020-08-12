@@ -3,7 +3,7 @@ const cors = require("cors");
 const { uuid } = require("uuidv4");
 const app = express();
 
-const { validateGithubURL } = require("./validations/index");
+const { validatePostData } = require("./middlewares");
 
 app.use(express.json());
 app.use(cors());
@@ -11,19 +11,11 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-  // TODO
+  return response.json(repositories);
 });
 
-app.post("/repositories", (request, response) => {
+app.post("/repositories", validatePostData, (request, response) => {
   const { title, url, techs } = request.body;
-
-  if (!validateGithubURL(url))
-    return response
-      .status(400)
-      .json({ error: "Invalid URL. e.g.: 'http://github.com/someting'" });
-
-  if (!Array.isArray(techs))
-    return response.status(400).json({ error: "Techs is not an Array" });
 
   const repository = {
     id: uuid(),
